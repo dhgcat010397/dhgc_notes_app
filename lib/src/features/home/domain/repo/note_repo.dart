@@ -11,4 +11,18 @@ abstract class NoteRepo {
   /// Throws an exception if the fetch fails.
   /// @param noteId The ID of the note to fetch.
   Future<NoteEntity?> getNoteDetail(int noteId);
+  
+  /// Adds a new note.
+  /// Returns the ID of the newly added note.
+  Future<int> addNote(NoteEntity note);
+
+
+  /// Deletes a note by its ID.
+  Future<bool> deleteNote(int noteId); 
+
+  /// Updates an existing note.
+  Future<bool> updateNote(NoteEntity note);
+
+  /// Filters notes by title based on the provided query.
+  Future<List<NoteEntity>> filterNoteByTitle(String query); 
 }

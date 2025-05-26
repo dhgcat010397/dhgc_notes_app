@@ -28,6 +28,13 @@ Future<void> noteInjectionContainer() async {
 
   // Register the NoteBloc
   sl.registerFactory<NoteBloc>(
-    () => NoteBloc(getNotesListUseCase: sl(), getNoteDetailUseCase: sl()),
+    () => NoteBloc(
+      getNotesListUseCase: sl(),
+      getNoteDetailUseCase: sl(),
+      filterNotesByTitleUseCase: sl(),
+      addNoteUseCase: sl(),
+      deleteNoteUseCase: sl(),
+      updateNoteUseCase: sl(),
+    ),
   );
 }

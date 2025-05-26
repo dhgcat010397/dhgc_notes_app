@@ -13,6 +13,22 @@ class NoteRepoImpl implements NoteRepo {
       await localDataSource.fetchNotesList();
 
   @override
+  Future<List<NoteEntity>> filterNoteByTitle(String query) async =>
+      await localDataSource.filterNoteByTitle(query);
+
+  @override
   Future<NoteEntity?> getNoteDetail(int noteId) async =>
       await localDataSource.getNoteDetail(noteId);
+
+  @override
+  Future<int> addNote(NoteEntity note) async =>
+      await localDataSource.addNote(note);
+
+  @override
+  Future<bool> deleteNote(int noteId) async =>
+      await localDataSource.deleteNote(noteId);
+
+  @override
+  Future<bool> updateNote(NoteEntity note) async =>
+      await localDataSource.updateNote(note);
 }

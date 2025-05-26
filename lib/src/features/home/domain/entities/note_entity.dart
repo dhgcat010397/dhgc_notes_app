@@ -1,6 +1,10 @@
 import 'package:equatable/equatable.dart';
 
-class NoteEntity extends Equatable {
+import 'package:dhgc_notes_app/src/features/home/data/datasources/mappers/model_convertable.dart';
+import 'package:dhgc_notes_app/src/features/home/data/models/note_model.dart';
+
+class NoteEntity extends Equatable
+    with ModelConvertible<NoteEntity, NoteModel> {
   final int id;
   final String title;
   final String content;
@@ -17,4 +21,15 @@ class NoteEntity extends Equatable {
 
   @override
   List<Object?> get props => [id, title, content, createdAt, modifiedAt];
+
+  @override
+  NoteModel toModel() {
+    return NoteModel(
+      id: id,
+      title: title,
+      content: content,
+      createdAt: createdAt,
+      modifiedAt: modifiedAt,
+    );
+  }
 }
