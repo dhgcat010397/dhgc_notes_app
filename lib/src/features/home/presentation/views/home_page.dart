@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // import 'package:dhgc_notes_app/src/core/routes/app_routes.dart';
-import 'package:dhgc_notes_app/src/core/helpers/string_helper.dart' show cleanedQuery;
+import 'package:dhgc_notes_app/src/core/helpers/string_helper.dart'
+    show cleanedQuery;
 import 'package:dhgc_notes_app/src/features/home/domain/entities/note_entity.dart';
 import 'package:dhgc_notes_app/src/features/home/presentation/bloc/note_bloc.dart';
 import 'package:dhgc_notes_app/src/features/home/presentation/views/add_or_update_note_popup.dart';
@@ -39,7 +40,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: const Text('Notes App')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAddNoteDialog(context);
+          _showAddNoteDialog();
         },
         child: const Icon(Icons.add),
       ),
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
               onSearch: (query) {
                 _searchQuery = cleanedQuery(query);
                 debugPrint('Search query: "$_searchQuery"');
-                
+
                 context.read<NoteBloc>().add(
                   NoteEvent.filterNotesByTitle(_searchQuery),
                 );
@@ -84,22 +85,29 @@ class _HomePageState extends State<HomePage> {
                             itemBuilder: (context, index) {
                               final note = notesList[index];
 
-                              return ListTile(
-                                title: Text(note.title),
-                                subtitle: Text(note.content),
-                                onTap: () async {
-                                  // Handle note tap, e.g., navigate to detail page
-                                  // Navigator.pushNamed(
-                                  //   context,
-                                  //   AppRoutes.noteDetail,
-                                  //   arguments: note.id,
-                                  // );
-                                },
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    _showUpdateNoteDialog(context, note);
+                              return Card(
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                elevation: 2,
+                                child: ListTile(
+                                  title: Text(note.title),
+                                  subtitle: Text(note.content),
+                                  onTap: () async {
+                                    // Handle note tap, e.g., navigate to detail page
+                                    // Navigator.pushNamed(
+                                    //   context,
+                                    //   AppRoutes.noteDetail,
+                                    //   arguments: note.id,
+                                    // );
                                   },
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.more_vert),
+                                    onPressed: () {
+                                      _showActionMenu(note);
+                                    },
+                                  ),
                                 ),
                               );
                             },
@@ -123,7 +131,7 @@ class _HomePageState extends State<HomePage> {
     context.read<NoteBloc>().add(NoteEvent.filterNotesByTitle(_searchQuery));
   }
 
-  void _showAddNoteDialog(BuildContext context) {
+  void _showAddNoteDialog() {
     showDialog(
       context: context,
       builder: (_) {
@@ -139,7 +147,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showUpdateNoteDialog(BuildContext context, NoteEntity note) {
+  void _showUpdateNoteDialog(NoteEntity note) {
     showDialog(
       context: context,
       builder: (_) {
@@ -159,6 +167,75 @@ class _HomePageState extends State<HomePage> {
 
             context.read<NoteBloc>().add(NoteEvent.updateNote(updatedNote));
           },
+        );
+      },
+    );
+  }
+
+  void _showActionMenu(NoteEntity note) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Update Note'),
+              onTap: () {
+                Navigator.pop(context);
+
+                _showUpdateNoteDialog(note);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Delete Note'),
+              onTap: () {
+                _showAlertDialog(
+                  title: 'Delete Note',
+                  content: 'Are you sure you want to delete this note?',
+                  onConfirm: () {
+                    Navigator.pop(context);
+
+                    // Handle delete logic, e.g., delete note from database
+                    context.read<NoteBloc>().add(
+                      NoteEvent.deleteNote(note.id!),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAlertDialog({
+    required String title,
+    required String content,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                onConfirm();
+                Navigator.pop(context);
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
         );
       },
     );
