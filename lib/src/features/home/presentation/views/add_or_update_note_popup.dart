@@ -1,4 +1,6 @@
+import 'package:dhgc_notes_app/src/core/utils/formatters/auto_capitalize_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AddOrUpdateNotePopup extends StatefulWidget {
   const AddOrUpdateNotePopup({
@@ -34,6 +36,8 @@ class _AddOrUpdateNotePopupState extends State<AddOrUpdateNotePopup> {
       _titleController.text = widget.title ?? "";
       _contentController.text = widget.content ?? "";
     }
+
+    _titleFocusNode.requestFocus();
   }
 
   @override
@@ -48,60 +52,73 @@ class _AddOrUpdateNotePopupState extends State<AddOrUpdateNotePopup> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title:
-          widget.isUpdateMode
-              ? const Text('Update Note')
-              : const Text('Add Note'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Text fields for title
-            TextField(
-              controller: _titleController,
-              focusNode: _titleFocusNode,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                border: OutlineInputBorder(),
-              ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SingleChildScrollView(
+        child: AlertDialog(
+          title:
+              widget.isUpdateMode
+                  ? const Text('Update Note')
+                  : const Text('Add Note'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Text fields for title
+                TextField(
+                  controller: _titleController,
+                  focusNode: _titleFocusNode,
+                  textCapitalization: TextCapitalization.sentences,
+                  inputFormatters: [
+                    AutoCapitalizeFormatter(),
+                    FilteringTextInputFormatter.deny(
+                      RegExp(r'\s\.'),
+                    ), // Prevents trailing spaces and dots
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Text fields for content
+                TextField(
+                  controller: _contentController,
+                  focusNode: _contentFocusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Content',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 5,
+                  minLines: 3,
+                ),
+              ],
             ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final title = _titleController.text;
+                final content = _contentController.text;
 
-            const SizedBox(height: 16),
+                widget.onSave?.call(title, content);
 
-            // Text fields for content
-            TextField(
-              controller: _contentController,
-              focusNode: _contentFocusNode,
-              decoration: const InputDecoration(
-                labelText: 'Content',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 5,
-              minLines: 3,
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
             ),
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            final title = _titleController.text;
-            final content = _contentController.text;
-
-            widget.onSave?.call(title, content);
-
-            Navigator.of(context).pop();
-          },
-          child: const Text('Save'),
-        ),
-      ],
     );
   }
 }

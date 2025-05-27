@@ -82,21 +82,25 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
 
     try {
       if (query.isEmpty) {
-        emit(_Loaded(notesList: _notesList));
+        _notesList = await getNotesListUseCase.call();
       } else {
-        _cleanedQuery =
-            query.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
+        // _cleanedQuery =
+        //     query.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
 
-        _notesList = await filterNotesByTitleUseCase.call(_cleanedQuery);
-
-        emit(_Loaded(notesList: _notesList));
+        _notesList = await filterNotesByTitleUseCase.call(query.toLowerCase());
       }
+
+      emit(_Loaded(notesList: _notesList));
     } catch (e) {
       emit(_Error(errorCode: e.hashCode, errorMessage: e.toString()));
     }
   }
 
-  Future<void> _onAddNote(String title, String content, Emitter<NoteState> emit) async {
+  Future<void> _onAddNote(
+    String title,
+    String content,
+    Emitter<NoteState> emit,
+  ) async {
     try {
       final note = NoteEntity(
         id: null, // ID will be set by the database

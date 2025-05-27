@@ -1,9 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 // import 'package:dhgc_notes_app/src/core/routes/app_routes.dart';
+import 'package:dhgc_notes_app/src/core/helpers/string_helper.dart' show cleanedQuery;
 import 'package:dhgc_notes_app/src/features/home/domain/entities/note_entity.dart';
 import 'package:dhgc_notes_app/src/features/home/presentation/bloc/note_bloc.dart';
 import 'package:dhgc_notes_app/src/features/home/presentation/views/add_or_update_note_popup.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dhgc_notes_app/src/features/home/presentation/widgets/search_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,13 +16,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late String _searchQuery;
+  late ScrollController _scrollController;
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
 
-    _searchQuery = "";
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -32,27 +43,28 @@ class _HomePageState extends State<HomePage> {
         },
         child: const Icon(Icons.add),
       ),
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Search bar
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Search Notes',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    // Handle search logic
-                  },
-                ),
-              ),
+      body: Column(
+        children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: NoteAppSearchBar(
+              onSearch: (query) {
+                _searchQuery = cleanedQuery(query);
+                debugPrint('Search query: "$_searchQuery"');
+                
+                context.read<NoteBloc>().add(
+                  NoteEvent.filterNotesByTitle(_searchQuery),
+                );
+              },
+            ),
+          ),
 
-              // Notes list
-              BlocBuilder<NoteBloc, NoteState>(
+          // Notes list
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: BlocBuilder<NoteBloc, NoteState>(
                 buildWhen: (previous, current) => previous != current,
                 builder: (context, state) {
                   return state.when(
@@ -65,8 +77,9 @@ class _HomePageState extends State<HomePage> {
                       return notesList.isEmpty
                           ? const Center(child: Text('No notes found'))
                           : ListView.builder(
+                            controller: _scrollController,
                             shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
+                            physics: const AlwaysScrollableScrollPhysics(),
                             itemCount: notesList.length,
                             itemBuilder: (context, index) {
                               final note = notesList[index];
@@ -98,9 +111,9 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
