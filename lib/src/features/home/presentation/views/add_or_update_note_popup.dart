@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 
 class AddOrUpdateNotePopup extends StatefulWidget {
-  const AddOrUpdateNotePopup({super.key, this.onSave});
+  const AddOrUpdateNotePopup({
+    super.key,
+    this.onSave,
+    this.isUpdateMode = false,
+    this.title = "",
+    this.content = "",
+  });
 
   final Function(String title, String content)? onSave;
+  final bool isUpdateMode;
+  final String? title, content;
 
   @override
   State<AddOrUpdateNotePopup> createState() => _AddOrUpdateNotePopupState();
@@ -21,6 +29,11 @@ class _AddOrUpdateNotePopupState extends State<AddOrUpdateNotePopup> {
     _contentController = TextEditingController();
     _titleFocusNode = FocusNode();
     _contentFocusNode = FocusNode();
+
+    if (widget.isUpdateMode) {
+      _titleController.text = widget.title ?? "";
+      _contentController.text = widget.content ?? "";
+    }
   }
 
   @override
@@ -36,7 +49,10 @@ class _AddOrUpdateNotePopupState extends State<AddOrUpdateNotePopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add Note'),
+      title:
+          widget.isUpdateMode
+              ? const Text('Update Note')
+              : const Text('Add Note'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -32,7 +32,7 @@ class NotesListModel extends Equatable {
 
 class NoteModel extends Equatable
     with EntityConvertible<NoteModel, NoteEntity> {
-  final int id;
+  final int? id;
   final String title;
   final String content;
   final DateTime createdAt;

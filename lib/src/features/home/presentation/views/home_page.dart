@@ -1,4 +1,4 @@
-import 'package:dhgc_notes_app/src/core/routes/app_routes.dart';
+// import 'package:dhgc_notes_app/src/core/routes/app_routes.dart';
 import 'package:dhgc_notes_app/src/features/home/domain/entities/note_entity.dart';
 import 'package:dhgc_notes_app/src/features/home/presentation/bloc/note_bloc.dart';
 import 'package:dhgc_notes_app/src/features/home/presentation/views/add_or_update_note_popup.dart';
@@ -113,15 +113,13 @@ class _HomePageState extends State<HomePage> {
   void _showAddNoteDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (_) {
         return AddOrUpdateNotePopup(
           onSave: (title, content) {
             // Handle save logic, e.g., add note to database
             context.read<NoteBloc>().add(
               NoteEvent.addNote(title: title, content: content),
             );
-
-            Navigator.of(context).pop();
           },
         );
       },
@@ -131,8 +129,11 @@ class _HomePageState extends State<HomePage> {
   void _showUpdateNoteDialog(BuildContext context, NoteEntity note) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (_) {
         return AddOrUpdateNotePopup(
+          isUpdateMode: true,
+          title: note.title,
+          content: note.content,
           onSave: (title, content) {
             // Handle save logic, e.g., update note to database
             final updatedNote = NoteEntity(
@@ -144,8 +145,6 @@ class _HomePageState extends State<HomePage> {
             );
 
             context.read<NoteBloc>().add(NoteEvent.updateNote(updatedNote));
-
-            Navigator.of(context).pop();
           },
         );
       },

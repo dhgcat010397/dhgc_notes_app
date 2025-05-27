@@ -5,7 +5,7 @@ import 'package:dhgc_notes_app/src/features/home/data/models/note_model.dart';
 
 class NoteEntity extends Equatable
     with ModelConvertible<NoteEntity, NoteModel> {
-  final int id;
+  final int? id;
   final String title;
   final String content;
   final DateTime createdAt;

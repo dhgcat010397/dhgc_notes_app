@@ -6,7 +6,6 @@ import 'package:dhgc_notes_app/src/features/home/domain/usecases/filter_notes_by
 import 'package:dhgc_notes_app/src/features/home/domain/usecases/get_note_detail_usecase.dart';
 import 'package:dhgc_notes_app/src/features/home/domain/usecases/get_notes_list_usecase.dart';
 import 'package:dhgc_notes_app/src/features/home/domain/usecases/update_note_usecase.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -100,7 +99,7 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
   Future<void> _onAddNote(String title, String content, Emitter<NoteState> emit) async {
     try {
       final note = NoteEntity(
-        id: -1, // Temporary ID, will be set by the database
+        id: null, // ID will be set by the database
         title: title.trim(),
         content: content.trim(),
         createdAt: DateTime.now(),
