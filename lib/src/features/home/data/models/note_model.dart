@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'package:dhgc_notes_app/src/features/home/data/datasources/mappers/entity_convertable.dart';
+import 'package:dhgc_notes_app/src/core/utils/mappers/entity_convertable.dart';
 import 'package:dhgc_notes_app/src/features/home/domain/entities/note_entity.dart';
 
 class NotesListModel extends Equatable {
